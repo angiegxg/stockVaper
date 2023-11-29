@@ -1,5 +1,11 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import cors from 'cors'
+import flavorRoutes from './routes/flavorRoute'
+import productRoutes from './routes/productRoute'
+import sellerRoutes from './routes/sellerRoute'
+import stockRoutes from './routes/stockRoute'
+import saleRoutes from './routes/saleRoute'
+import distributionRoutes from './routes/distributionRoute'
 
 const app = express()
 app.use(express.json())
@@ -15,10 +21,12 @@ app.options('*', cors())
 
 const PORT = 3001
 
-app.get('/ping', (_req: Request, res: Response) => {
-  console.log('someone pinged here!!!')
-  res.send('pong')
-})
+app.use('/flavor', flavorRoutes)
+app.use('/product', productRoutes)
+app.use('/seller', sellerRoutes)
+app.use('/stock', stockRoutes)
+app.use('/sale', saleRoutes)
+app.use('/distribution', distributionRoutes)
 
 app.listen(PORT, () => {
   console.log(`server listening on ${PORT}`)

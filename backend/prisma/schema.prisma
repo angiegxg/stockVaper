@@ -1,0 +1,101 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String
+  img         String
+  cost        Float
+  flavors     ProductByFlavor[]
+}
+
+model Flavor {
+  id      Int              @id @default(autoincrement())
+  flavor  String
+  product ProductByFlavor[]
+}
+
+model ProductByFlavor {
+  flavor    Flavor  @relation(fields: [flavorId], references: [id])
+  flavorId  Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  productDetail ProductDetail[]
+  stock    Stock[]
+
+  @@id([flavorId, productId])
+}
+
+model Seller {
+  id          Int    @id @default(autoincrement())
+  name        String @unique
+  commission  Float
+  sales       Sale[]
+  stock       Stock[]
+}
+
+model Sale {
+  id            Int             @id @default(autoincrement())
+  date          DateTime
+  seller        Seller          @relation(fields: [sellerId], references: [id])
+  sellerId      Int
+  productsSold  ProductDetail[]
+  total Float
+}
+
+model ProductDetail {
+  id         Int               @id @default(autoincrement())
+  quantity   Int
+  product    ProductByFlavor   @relation(fields: [productId, flavorId], references: [productId, flavorId])
+  productId  Int
+  flavorId   Int
+  price      Float
+  sale       Sale              @relation(fields: [saleId], references: [id])
+  saleId     Int
+
+  
+}
+
+model Stock {
+  id                  Int                  @id @default(autoincrement())
+  product             ProductByFlavor      @relation(fields: [productId, flavorId], references: [productId, flavorId])
+  productId           Int
+  flavorId            Int
+  quantity            Int
+  seller              Seller               @relation(fields: [sellerId], references: [id])
+  sellerId            Int
+  sentDistributions   Distribution[]       @relation("SentDistributions")
+  receivedDistributions Distribution[]       @relation("ReceivedDistributions")
+  stockDistribution    StockDistribution[]
+}
+
+model Distribution {
+  id                 Int                 @id @default(autoincrement())
+  date               DateTime            @default(now())
+  quantity           Int
+  sentFromStock      Stock               @relation("SentDistributions", fields: [fromStockId], references: [id])
+  fromStockId        Int
+  receivedAtStock    Stock               @relation("ReceivedDistributions", fields: [toStockId], references: [id])
+  toStockId          Int
+  stockDistributions StockDistribution[]
+}
+
+model StockDistribution {
+  stock          Stock       @relation(fields: [stockId], references: [id])
+  stockId        Int
+  distribution   Distribution @relation(fields: [distributionId], references: [id])
+  distributionId Int
+
+  @@id([stockId, distributionId])
+}
+
