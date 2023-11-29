@@ -19,7 +19,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.options('*', cors())
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
 app.use('/flavor', flavorRoutes)
 app.use('/product', productRoutes)
