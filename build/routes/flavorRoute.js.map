@@ -1,0 +1,1 @@
+{"version":3,"file":"flavorRoute.js","sourceRoot":"","sources":["../../src/routes/flavorRoute.ts"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA,sDAA6B;AAC7B,kFAAmE;AAEnE,MAAM,YAAY,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAA;AAErC,YAAY,CAAC,IAAI,CAAC,GAAG,EAAE,gBAAgB,CAAC,YAAY,CAAC,CAAA;AACrD,YAAY,CAAC,GAAG,CAAC,GAAG,EAAE,gBAAgB,CAAC,sBAAsB,CAAC,CAAA;AAE9D,kBAAe,YAAY,CAAA"}
