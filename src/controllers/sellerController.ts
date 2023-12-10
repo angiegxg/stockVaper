@@ -12,9 +12,10 @@ async function createSellerController(req: Request, res: Response) {
   }
 }
 
-async function getSellerStockController(_req: Request, res: Response) {
+async function getSellerStockController(req: Request, res: Response) {
+  const userId = req.params.userId
   try {
-    const createSeller = await sellerService.getAllSellerStockService()
+    const createSeller = await sellerService.getAllSellerStockService(+userId)
     res.json(createSeller)
   } catch (errors) {
     res.status(500).json({ error: 'Error al crear traer todos los vendedores' })
@@ -22,10 +23,10 @@ async function getSellerStockController(_req: Request, res: Response) {
 }
 
 async function getSellerStockByIdController(req: Request, res: Response) {
-  const { id } = req.params
+  const { id, userId } = req.params
 
   try {
-    const sellerById = await sellerService.getAllSellerStockByIDService(+id)
+    const sellerById = await sellerService.getAllSellerStockByIDService(+id, +userId)
     res.json(sellerById)
   } catch (errors) {
     res.status(500).json({ error: 'Error al crear el vendedor' })
@@ -33,9 +34,9 @@ async function getSellerStockByIdController(req: Request, res: Response) {
 }
 
 async function deleteSellerController(req: Request, res: Response) {
-  const { id } = req.params
+  const { id, userId } = req.params
   try {
-    const deletedSeller = await sellerService.deleteSellerService(parseInt(id))
+    const deletedSeller = await sellerService.deleteSellerService(+id, +userId)
 
     if (deletedSeller) {
       return res.json(deletedSeller)

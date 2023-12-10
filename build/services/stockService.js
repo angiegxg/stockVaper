@@ -12,11 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createstockNewService = exports.getStockByIdService = exports.getStockByFlavorProductService = exports.getStockBySellerService = exports.updateQuantityStockService = exports.deleteStockService = exports.getAllStockService = exports.createStockService = exports.checkStockExistsService = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-function createstockNewService(stock) {
+function createstockNewService(stock, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { productId, flavorId, quantity, sellerId } = stock;
         const createStock = yield prisma.stock.create({
             data: {
+                userId,
                 productId,
                 flavorId,
                 quantity,
@@ -27,21 +28,21 @@ function createstockNewService(stock) {
     });
 }
 exports.createstockNewService = createstockNewService;
-function checkStockExistsService(productId, flavorId, sellerId) {
+function checkStockExistsService(productId, flavorId, sellerId, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const existingStock = yield prisma.stock.findFirst({
-            where: { productId, flavorId, sellerId },
-            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+            where: { productId, flavorId, sellerId, userId },
+            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
         });
         return existingStock || null;
     });
 }
 exports.checkStockExistsService = checkStockExistsService;
-function getStockBySellerService(sellerId) {
+function getStockBySellerService(sellerId, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sellerStock = yield prisma.stock.findMany({
-            where: { sellerId },
-            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+            where: { sellerId, userId },
+            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
         });
         return sellerStock.length > 0 ? sellerStock : null;
     });
@@ -51,15 +52,16 @@ function getStockByFlavorProductService(productId, flavorId) {
     return __awaiter(this, void 0, void 0, function* () {
         const flavorProductStock = yield prisma.stock.findMany({
             where: { productId, flavorId },
-            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+            select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
         });
         return flavorProductStock.length > 0 ? flavorProductStock : null;
     });
 }
 exports.getStockByFlavorProductService = getStockByFlavorProductService;
-function getAllStockService() {
+function getAllStockService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const flavorProductStock = yield prisma.stock.findMany({
+            where: { userId },
             include: {
                 seller: true,
                 product: {
@@ -74,10 +76,10 @@ function getAllStockService() {
     });
 }
 exports.getAllStockService = getAllStockService;
-function updateQuantityStockService(id, quantity) {
+function updateQuantityStockService(id, quantity, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const updateStock = yield prisma.stock.update({
-            where: { id },
+            where: { id, userId },
             data: {
                 quantity,
             },
@@ -87,32 +89,32 @@ function updateQuantityStockService(id, quantity) {
     });
 }
 exports.updateQuantityStockService = updateQuantityStockService;
-function createStockService(stock) {
+function createStockService(stock, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { productId, flavorId, quantity, sellerId } = stock;
-        const existingStock = yield checkStockExistsService(productId, flavorId, sellerId);
+        const existingStock = yield checkStockExistsService(productId, flavorId, sellerId, userId);
         if (existingStock) {
-            return yield updateQuantityStockService(existingStock.id, quantity);
+            return yield updateQuantityStockService(existingStock.id, quantity, userId);
         }
         else {
-            return yield createstockNewService(stock);
+            return yield createstockNewService(stock, userId);
         }
     });
 }
 exports.createStockService = createStockService;
-function deleteStockService(id) {
+function deleteStockService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const deletedStock = yield prisma.stock.delete({
-            where: { id },
+            where: { id, userId },
         });
         return deletedStock;
     });
 }
 exports.deleteStockService = deleteStockService;
-function getStockByIdService(id) {
+function getStockByIdService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const stockById = yield prisma.stock.findUnique({
-            where: { id },
+            where: { id, userId },
         });
         return stockById || null;
     });

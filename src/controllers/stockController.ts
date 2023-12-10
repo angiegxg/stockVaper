@@ -2,10 +2,10 @@ import { Request, Response } from 'express'
 import * as stockService from '../services/stockService'
 
 async function createStockController(req: Request, res: Response) {
-  const newStock = req.body
+  const { stock, userId } = req.body
 
   try {
-    const createStock = await stockService.createStockService(newStock)
+    const createStock = await stockService.createStockService(stock, userId)
 
     res.json(createStock)
   } catch (error) {
@@ -14,9 +14,10 @@ async function createStockController(req: Request, res: Response) {
   }
 }
 
-async function getAllStockController(_req: Request, res: Response) {
+async function getAllStockController(req: Request, res: Response) {
+  const { userId } = req.params
   try {
-    const allStock = await stockService.getAllStockService()
+    const allStock = await stockService.getAllStockService(+userId)
 
     res.json(allStock)
   } catch (error) {
@@ -25,9 +26,9 @@ async function getAllStockController(_req: Request, res: Response) {
   }
 }
 async function deleteStockController(req: Request, res: Response) {
-  const stockId = parseInt(req.params.id)
+  const { id, userId } = req.params
   try {
-    const deletedStock = await stockService.deleteStockService(stockId)
+    const deletedStock = await stockService.deleteStockService(+id, +userId)
     if (deletedStock) {
       res.json({ message: 'Stock eliminado correctamente' })
     } else {
@@ -39,10 +40,10 @@ async function deleteStockController(req: Request, res: Response) {
 }
 
 async function updateStockController(req: Request, res: Response) {
-  const { id, quantity } = req.body
+  const { id, quantity, userId } = req.body
 
   try {
-    const updatedStock = await stockService.updateQuantityStockService(id, quantity)
+    const updatedStock = await stockService.updateQuantityStockService(id, quantity, userId)
     res.json(updatedStock)
   } catch (error) {
     res.status(500).json({ error: 'No se pudo actualizar el stock' })
@@ -50,10 +51,10 @@ async function updateStockController(req: Request, res: Response) {
 }
 
 async function getStockBySellerController(req: Request, res: Response) {
-  const sellerId = parseInt(req.params.sellerId)
+  const { id, userId } = req.params
 
   try {
-    const sellerStock = await stockService.getStockBySellerService(sellerId)
+    const sellerStock = await stockService.getStockBySellerService(+id, +userId)
     if (sellerStock) {
       res.json(sellerStock)
     } else {

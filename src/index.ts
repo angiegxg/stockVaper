@@ -6,6 +6,7 @@ import sellerRoutes from './routes/sellerRoute'
 import stockRoutes from './routes/stockRoute'
 import saleRoutes from './routes/saleRoute'
 import distributionRoutes from './routes/distributionRoute'
+import userRoutes from './routes/userRoute'
 
 const app = express()
 app.use(express.json())
@@ -27,6 +28,7 @@ app.use('/seller', sellerRoutes)
 app.use('/stock', stockRoutes)
 app.use('/sale', saleRoutes)
 app.use('/distribution', distributionRoutes)
+app.use('/user', userRoutes)
 
 app.listen(PORT, () => {
   console.log(`server listening on ${PORT}`)

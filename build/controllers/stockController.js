@@ -36,9 +36,9 @@ exports.getStockByFlavorProductController = exports.getStockBySellerController =
 const stockService = __importStar(require("../services/stockService"));
 function createStockController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const newStock = req.body;
+        const { stock, userId } = req.body;
         try {
-            const createStock = yield stockService.createStockService(newStock);
+            const createStock = yield stockService.createStockService(stock, userId);
             res.json(createStock);
         }
         catch (error) {
@@ -48,10 +48,11 @@ function createStockController(req, res) {
     });
 }
 exports.createStockController = createStockController;
-function getAllStockController(_req, res) {
+function getAllStockController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const { userId } = req.params;
         try {
-            const allStock = yield stockService.getAllStockService();
+            const allStock = yield stockService.getAllStockService(+userId);
             res.json(allStock);
         }
         catch (error) {
@@ -63,9 +64,9 @@ function getAllStockController(_req, res) {
 exports.getAllStockController = getAllStockController;
 function deleteStockController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const stockId = parseInt(req.params.id);
+        const { id, userId } = req.params;
         try {
-            const deletedStock = yield stockService.deleteStockService(stockId);
+            const deletedStock = yield stockService.deleteStockService(+id, +userId);
             if (deletedStock) {
                 res.json({ message: 'Stock eliminado correctamente' });
             }
@@ -81,9 +82,9 @@ function deleteStockController(req, res) {
 exports.deleteStockController = deleteStockController;
 function updateStockController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { id, quantity } = req.body;
+        const { id, quantity, userId } = req.body;
         try {
-            const updatedStock = yield stockService.updateQuantityStockService(id, quantity);
+            const updatedStock = yield stockService.updateQuantityStockService(id, quantity, userId);
             res.json(updatedStock);
         }
         catch (error) {
@@ -94,9 +95,9 @@ function updateStockController(req, res) {
 exports.updateStockController = updateStockController;
 function getStockBySellerController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const sellerId = parseInt(req.params.sellerId);
+        const { id, userId } = req.params;
         try {
-            const sellerStock = yield stockService.getStockBySellerService(sellerId);
+            const sellerStock = yield stockService.getStockBySellerService(+id, +userId);
             if (sellerStock) {
                 res.json(sellerStock);
             }

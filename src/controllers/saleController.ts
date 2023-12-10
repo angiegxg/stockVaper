@@ -2,10 +2,10 @@ import { Request, Response } from 'express'
 import * as saleService from '../services/saleService'
 
 async function createSaleController(req: Request, res: Response) {
-  const sale = req.body
+  const { sale, userId } = req.body
 
   try {
-    const newSale = await saleService.createSaleService(sale)
+    const newSale = await saleService.createSaleService(sale, +userId)
     res.json(newSale)
   } catch (error) {
     console.log(error)
@@ -14,9 +14,9 @@ async function createSaleController(req: Request, res: Response) {
 }
 
 async function goBackSaleController(req: Request, res: Response) {
-  const { id } = req.params
+  const { id, userId } = req.params
   try {
-    const deletedSale = await saleService.goBackSaleService(parseInt(id))
+    const deletedSale = await saleService.goBackSaleService(+id, +userId)
 
     if (deletedSale) {
       return res.json(deletedSale)
@@ -29,9 +29,10 @@ async function goBackSaleController(req: Request, res: Response) {
   }
 }
 
-async function getAllSaleController(_req: Request, res: Response) {
+async function getAllSaleController(req: Request, res: Response) {
+  const { userId } = req.params
   try {
-    const sales = await saleService.getAllSaleService()
+    const sales = await saleService.getAllSaleService(+userId)
 
     return res.json(sales)
   } catch (error) {

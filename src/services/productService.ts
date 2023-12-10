@@ -2,7 +2,7 @@ import { PrismaClient, Product } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function createProductService(product: Product, flavorIds: number[]): Promise<Product> {
+async function createProductService(product: Product, flavorIds: number[], userId: number): Promise<Product> {
   const { name, description, img, cost } = product
 
   const createProduct = await prisma.product.create({
@@ -11,6 +11,7 @@ async function createProductService(product: Product, flavorIds: number[]): Prom
       description,
       img,
       cost,
+      userId,
       flavors: {
         create: flavorIds.map((flavorId) => ({
           flavor: {
@@ -24,8 +25,10 @@ async function createProductService(product: Product, flavorIds: number[]): Prom
   return createProduct
 }
 
-async function getAllProductService(): Promise<Product[]> {
-  const allproduct = await prisma.product.findMany({})
+async function getAllProductService(userId: number): Promise<Product[]> {
+  const allproduct = await prisma.product.findMany({
+    where: { userId },
+  })
   return allproduct
 }
 

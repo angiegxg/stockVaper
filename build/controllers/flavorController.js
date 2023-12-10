@@ -37,8 +37,9 @@ const flavorService = __importStar(require("../services/flavorService"));
 function createFlavor(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const flavors = req.body.flavors;
+        const userId = req.body.userId;
         try {
-            const createdFlavors = yield flavorService.createFlavorService(flavors);
+            const createdFlavors = yield flavorService.createFlavorService(flavors, userId);
             return res.json(createdFlavors);
         }
         catch (error) {
@@ -47,10 +48,11 @@ function createFlavor(req, res) {
     });
 }
 exports.createFlavor = createFlavor;
-function getAllflavorController(_req, res) {
+function getAllflavorController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = req.params.userId;
         try {
-            const flavors = yield flavorService.getAllFlavorService();
+            const flavors = yield flavorService.getAllFlavorService(+userId);
             return res.json(flavors);
         }
         catch (error) {

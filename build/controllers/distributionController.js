@@ -37,8 +37,11 @@ const distributionService = __importStar(require("../services/distributionServic
 function createNewDistributionsController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const distributions = req.body;
-            const results = yield distributionService.transferStocksService(distributions);
+            const distributions = req.body.distribution;
+            console.log('estoy en el controlller distribution:', distributions);
+            const userId = req.body.userId;
+            console.log('estoy en el controlller distribution UserID:', userId);
+            const results = yield distributionService.transferStocksService(distributions, userId);
             const successfulDistributions = results.filter((result) => result !== null);
             const failedDistributions = results.filter((result) => result === null);
             if (successfulDistributions.length > 0) {
@@ -55,9 +58,10 @@ function createNewDistributionsController(req, res) {
     });
 }
 exports.createNewDistributionsController = createNewDistributionsController;
-const getDistributionController = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getDistributionController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
     try {
-        const allDistribution = yield distributionService.getAllDistributionService();
+        const allDistribution = yield distributionService.getAllDistributionService(+userId);
         res.json(allDistribution);
     }
     catch (error) {
@@ -68,9 +72,9 @@ const getDistributionController = (_req, res) => __awaiter(void 0, void 0, void 
 exports.getDistributionController = getDistributionController;
 function getDistributionByIdController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const distributionId = parseInt(req.params.id);
+        const { id, userId } = req.params;
         try {
-            const distribution = yield distributionService.getDistributionByIdService(distributionId);
+            const distribution = yield distributionService.getDistributionByIdService(+id, +userId);
             if (distribution) {
                 res.json(distribution);
             }

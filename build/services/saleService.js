@@ -36,12 +36,12 @@ exports.getAllSaleService = exports.goBackSaleService = exports.createSaleServic
 const client_1 = require("@prisma/client");
 const stockServise = __importStar(require("./stockService"));
 const prisma = new client_1.PrismaClient();
-function createSaleService(sale) {
+function createSaleService(sale, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { sellerId, productsSold, total } = sale;
         let newQuantity;
         for (const product of productsSold) {
-            const stock = yield stockServise.checkStockExistsService(product.productId, product.flavorId, sellerId);
+            const stock = yield stockServise.checkStockExistsService(product.productId, product.flavorId, sellerId, userId);
             if (stock.quantity >= product.quantity) {
                 newQuantity = stock.quantity - product.quantity;
             }
@@ -49,12 +49,13 @@ function createSaleService(sale) {
                 // Ajustar la cantidad vendida al stock disponible
                 newQuantity = stock.quantity;
             }
-            yield stockServise.updateQuantityStockService(stock.id, newQuantity);
+            yield stockServise.updateQuantityStockService(stock.id, newQuantity, userId);
         }
         const newSale = yield prisma.sale.create({
             data: {
                 date: new Date(),
                 sellerId,
+                userId,
                 total,
                 productsSold: {
                     create: productsSold.map((product) => ({
@@ -74,9 +75,10 @@ function createSaleService(sale) {
     });
 }
 exports.createSaleService = createSaleService;
-function getAllSaleService() {
+function getAllSaleService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sales = yield prisma.sale.findMany({
+            where: { userId },
             include: {
                 seller: true,
                 productsSold: {
@@ -95,25 +97,25 @@ function getAllSaleService() {
     });
 }
 exports.getAllSaleService = getAllSaleService;
-function goBackSaleService(id) {
+function goBackSaleService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sale = yield prisma.sale.findUnique({
-            where: { id },
+            where: { id, userId },
             include: { productsSold: true },
         });
         if (!sale) {
             return null;
         }
         for (const product of sale.productsSold) {
-            const stock = yield stockServise.checkStockExistsService(product.productId, product.flavorId, sale.sellerId);
+            const stock = yield stockServise.checkStockExistsService(product.productId, product.flavorId, sale.sellerId, userId);
             const newQuantity = stock.quantity + product.quantity;
-            yield stockServise.updateQuantityStockService(stock.id, newQuantity);
+            yield stockServise.updateQuantityStockService(stock.id, newQuantity, userId);
             yield prisma.productDetail.delete({
                 where: { id: product.id },
             });
         }
         yield prisma.sale.delete({
-            where: { id },
+            where: { id, userId },
         });
         return sale;
     });

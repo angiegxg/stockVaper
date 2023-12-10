@@ -30,6 +30,6 @@ const express_1 = __importDefault(require("express"));
 const flavorController = __importStar(require("../controllers/flavorController"));
 const flavorRoutes = express_1.default.Router();
 flavorRoutes.post('/', flavorController.createFlavor);
-flavorRoutes.get('/', flavorController.getAllflavorController);
+flavorRoutes.get('/:userId', flavorController.getAllflavorController);
 exports.default = flavorRoutes;
 //# sourceMappingURL=flavorRoute.js.map

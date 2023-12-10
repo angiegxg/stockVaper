@@ -3,12 +3,12 @@ import { Sale } from '../types'
 import * as stockServise from './stockService'
 const prisma = new PrismaClient()
 
-async function createSaleService(sale: Sale): Promise<Sale> {
+async function createSaleService(sale: Sale, userId: number): Promise<Sale> {
   const { sellerId, productsSold, total } = sale
 
   let newQuantity: number
   for (const product of productsSold) {
-    const stock = await stockServise.checkStockExistsService(product.productId, product.flavorId, sellerId)
+    const stock = await stockServise.checkStockExistsService(product.productId, product.flavorId, sellerId, userId)
 
     if (stock!.quantity >= product.quantity) {
       newQuantity = stock!.quantity - product.quantity
@@ -17,13 +17,14 @@ async function createSaleService(sale: Sale): Promise<Sale> {
       newQuantity = stock.quantity
     }
 
-    await stockServise.updateQuantityStockService(stock!.id!, newQuantity!)
+    await stockServise.updateQuantityStockService(stock!.id!, newQuantity!, userId)
   }
 
   const newSale = await prisma.sale.create({
     data: {
       date: new Date(),
       sellerId,
+      userId,
       total,
       productsSold: {
         create: productsSold.map((product) => ({
@@ -43,8 +44,9 @@ async function createSaleService(sale: Sale): Promise<Sale> {
   return newSale
 }
 
-async function getAllSaleService(): Promise<Sale[]> {
+async function getAllSaleService(userId: number): Promise<Sale[]> {
   const sales = await prisma.sale.findMany({
+    where: { userId },
     include: {
       seller: true,
       productsSold: {
@@ -63,9 +65,9 @@ async function getAllSaleService(): Promise<Sale[]> {
   return sales
 }
 
-async function goBackSaleService(id: number): Promise<Sale | null> {
+async function goBackSaleService(id: number, userId: number): Promise<Sale | null> {
   const sale = await prisma.sale.findUnique({
-    where: { id },
+    where: { id, userId },
     include: { productsSold: true },
   })
 
@@ -74,16 +76,16 @@ async function goBackSaleService(id: number): Promise<Sale | null> {
   }
 
   for (const product of sale.productsSold) {
-    const stock = await stockServise.checkStockExistsService(product.productId, product.flavorId, sale.sellerId)
+    const stock = await stockServise.checkStockExistsService(product.productId, product.flavorId, sale.sellerId, userId)
     const newQuantity = stock!.quantity + product.quantity
-    await stockServise.updateQuantityStockService(stock!.id!, newQuantity)
+    await stockServise.updateQuantityStockService(stock!.id!, newQuantity, userId)
     await prisma.productDetail.delete({
       where: { id: product.id },
     })
   }
 
   await prisma.sale.delete({
-    where: { id },
+    where: { id, userId },
   })
 
   return sale

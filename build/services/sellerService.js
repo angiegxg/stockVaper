@@ -14,24 +14,25 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 function createSellerService(seller) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { name, commission } = seller;
-        if (yield ifSellerByNameService(name)) {
+        const { name, commission, userId } = seller;
+        if (yield ifSellerByNameService(name, userId)) {
             throw new Error(`El vendedor'${name}' ya existe.`);
         }
         const createSeller = yield prisma.seller.create({
             data: {
                 name,
                 commission,
+                userId,
             },
         });
         return createSeller;
     });
 }
 exports.createSellerService = createSellerService;
-function ifSellerByNameService(seller) {
+function ifSellerByNameService(seller, userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const SellerByName = yield prisma.seller.findUnique({
-            where: { name: seller },
+        const SellerByName = yield prisma.seller.findFirst({
+            where: { name: seller, userId },
             select: { id: true, name: true, commission: true },
         });
         if (SellerByName) {
@@ -41,9 +42,10 @@ function ifSellerByNameService(seller) {
     });
 }
 exports.ifSellerByNameService = ifSellerByNameService;
-function getAllSellerStockService() {
+function getAllSellerStockService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sellerStock = yield prisma.seller.findMany({
+            where: { userId },
             include: {
                 stock: {
                     include: {
@@ -61,10 +63,10 @@ function getAllSellerStockService() {
     });
 }
 exports.getAllSellerStockService = getAllSellerStockService;
-function getAllSellerStockByIDService(id) {
+function getAllSellerStockByIDService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sellerStock = yield prisma.seller.findMany({
-            where: { id },
+            where: { id, userId },
             include: {
                 stock: {
                     include: {
@@ -82,10 +84,10 @@ function getAllSellerStockByIDService(id) {
     });
 }
 exports.getAllSellerStockByIDService = getAllSellerStockByIDService;
-function deleteSellerService(id) {
+function deleteSellerService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const sellerDelete = yield prisma.seller.delete({
-            where: { id },
+            where: { id, userId },
         });
         return sellerDelete;
     });

@@ -4,6 +4,6 @@ import * as flavorController from '../controllers/flavorController'
 const flavorRoutes = express.Router()
 
 flavorRoutes.post('/', flavorController.createFlavor)
-flavorRoutes.get('/', flavorController.getAllflavorController)
+flavorRoutes.get('/:userId', flavorController.getAllflavorController)
 
 export default flavorRoutes

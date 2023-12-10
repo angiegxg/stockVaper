@@ -30,7 +30,7 @@ const express_1 = __importDefault(require("express"));
 const saleController = __importStar(require("../controllers/saleController"));
 const saleRoutes = express_1.default.Router();
 saleRoutes.post('/', saleController.createSaleController);
-saleRoutes.delete('/:id', saleController.goBackSaleController);
-saleRoutes.get('/', saleController.getAllSaleController);
+saleRoutes.delete('/:id/:userId', saleController.goBackSaleController);
+saleRoutes.get('/:userId', saleController.getAllSaleController);
 exports.default = saleRoutes;
 //# sourceMappingURL=saleRoute.js.map

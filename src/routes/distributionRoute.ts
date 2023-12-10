@@ -4,7 +4,7 @@ import * as distributionController from '../controllers/distributionController'
 const distributionRoutes = express.Router()
 
 distributionRoutes.post('/', distributionController.createNewDistributionsController)
-distributionRoutes.get('/', distributionController.getDistributionController)
-distributionRoutes.get('/:id', distributionController.getDistributionByIdController)
+distributionRoutes.get('/:userId', distributionController.getDistributionController)
+distributionRoutes.get('/:id/:userId', distributionController.getDistributionByIdController)
 
 export default distributionRoutes

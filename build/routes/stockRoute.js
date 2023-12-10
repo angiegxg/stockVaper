@@ -30,9 +30,9 @@ const express_1 = __importDefault(require("express"));
 const stockController = __importStar(require("../controllers/stockController"));
 const stockRoutes = express_1.default.Router();
 stockRoutes.post('/', stockController.createStockController);
-stockRoutes.get('/', stockController.getAllStockController);
-stockRoutes.delete('/:id', stockController.deleteStockController);
-stockRoutes.put('/:id', stockController.updateStockController);
+stockRoutes.get('/:userId', stockController.getAllStockController);
+stockRoutes.delete('/:id/:userId', stockController.deleteStockController);
+stockRoutes.put('/:id/:userId', stockController.updateStockController);
 stockRoutes.get('/stock-product/:productId/flavor/:flavorId', stockController.getStockByFlavorProductController);
 exports.default = stockRoutes;
 //# sourceMappingURL=stockRoute.js.map

@@ -3,10 +3,11 @@ import { Stock } from '../types'
 
 const prisma = new PrismaClient()
 
-async function createstockNewService(stock: Stock): Promise<Stock> {
+async function createstockNewService(stock: Stock, userId: number): Promise<Stock> {
   const { productId, flavorId, quantity, sellerId } = stock
   const createStock = await prisma.stock.create({
     data: {
+      userId,
       productId,
       flavorId,
       quantity,
@@ -17,19 +18,19 @@ async function createstockNewService(stock: Stock): Promise<Stock> {
   return createStock
 }
 
-async function checkStockExistsService(productId: number, flavorId: number, sellerId: number): Promise<Stock | null> {
+async function checkStockExistsService(productId: number, flavorId: number, sellerId: number, userId: number): Promise<Stock | null> {
   const existingStock = await prisma.stock.findFirst({
-    where: { productId, flavorId, sellerId },
-    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+    where: { productId, flavorId, sellerId, userId },
+    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
   })
 
   return existingStock || null
 }
 
-async function getStockBySellerService(sellerId: number): Promise<Stock[] | null> {
+async function getStockBySellerService(sellerId: number, userId: number): Promise<Stock[] | null> {
   const sellerStock = await prisma.stock.findMany({
-    where: { sellerId },
-    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+    where: { sellerId, userId },
+    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
   })
 
   return sellerStock.length > 0 ? sellerStock : null
@@ -38,14 +39,15 @@ async function getStockBySellerService(sellerId: number): Promise<Stock[] | null
 async function getStockByFlavorProductService(productId: number, flavorId: number): Promise<Stock[] | null> {
   const flavorProductStock = await prisma.stock.findMany({
     where: { productId, flavorId },
-    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true },
+    select: { id: true, productId: true, flavorId: true, sellerId: true, quantity: true, userId: true },
   })
 
   return flavorProductStock.length > 0 ? flavorProductStock : null
 }
 
-async function getAllStockService(): Promise<Stock[] | null> {
+async function getAllStockService(userId: number): Promise<Stock[] | null> {
   const flavorProductStock = await prisma.stock.findMany({
+    where: { userId },
     include: {
       seller: true,
       product: {
@@ -60,9 +62,9 @@ async function getAllStockService(): Promise<Stock[] | null> {
   return flavorProductStock.length > 0 ? flavorProductStock : null
 }
 
-async function updateQuantityStockService(id: number, quantity: number): Promise<Stock> {
+async function updateQuantityStockService(id: number, quantity: number, userId: number): Promise<Stock> {
   const updateStock = await prisma.stock.update({
-    where: { id },
+    where: { id, userId },
     data: {
       quantity,
     },
@@ -73,29 +75,29 @@ async function updateQuantityStockService(id: number, quantity: number): Promise
   return updateStock
 }
 
-async function createStockService(stock: Stock): Promise<Stock> {
+async function createStockService(stock: Stock, userId: number): Promise<Stock> {
   const { productId, flavorId, quantity, sellerId } = stock
 
-  const existingStock = await checkStockExistsService(productId, flavorId, sellerId)
+  const existingStock = await checkStockExistsService(productId, flavorId, sellerId, userId)
 
   if (existingStock) {
-    return await updateQuantityStockService(existingStock.id!, quantity)
+    return await updateQuantityStockService(existingStock.id!, quantity, userId)
   } else {
-    return await createstockNewService(stock)
+    return await createstockNewService(stock, userId)
   }
 }
 
-async function deleteStockService(id: number): Promise<Stock | null> {
+async function deleteStockService(id: number, userId: number): Promise<Stock | null> {
   const deletedStock = await prisma.stock.delete({
-    where: { id },
+    where: { id, userId },
   })
 
   return deletedStock
 }
 
-async function getStockByIdService(id: number): Promise<Stock | null> {
+async function getStockByIdService(id: number, userId: number): Promise<Stock | null> {
   const stockById = await prisma.stock.findUnique({
-    where: { id },
+    where: { id, userId },
   })
 
   return stockById || null

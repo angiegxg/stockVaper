@@ -3,9 +3,10 @@ import * as flavorService from '../services/flavorService'
 
 async function createFlavor(req: Request, res: Response) {
   const flavors = req.body.flavors
+  const userId = req.body.userId
 
   try {
-    const createdFlavors = await flavorService.createFlavorService(flavors)
+    const createdFlavors = await flavorService.createFlavorService(flavors, userId)
 
     return res.json(createdFlavors)
   } catch (error: any) {
@@ -13,9 +14,10 @@ async function createFlavor(req: Request, res: Response) {
   }
 }
 
-async function getAllflavorController(_req: Request, res: Response) {
+async function getAllflavorController(req: Request, res: Response) {
+  const userId = req.params.userId
   try {
-    const flavors = await flavorService.getAllFlavorService()
+    const flavors = await flavorService.getAllFlavorService(+userId)
 
     return res.json(flavors)
   } catch (error) {

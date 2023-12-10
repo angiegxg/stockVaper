@@ -3,23 +3,24 @@ import { PrismaClient, Seller } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function createSellerService(seller: Seller): Promise<Seller> {
-  const { name, commission } = seller
-  if (await ifSellerByNameService(name)) {
+  const { name, commission, userId } = seller
+  if (await ifSellerByNameService(name, userId)) {
     throw new Error(`El vendedor'${name}' ya existe.`)
   }
   const createSeller = await prisma.seller.create({
     data: {
       name,
       commission,
+      userId,
     },
   })
 
   return createSeller
 }
 
-async function ifSellerByNameService(seller: string): Promise<boolean> {
-  const SellerByName = await prisma.seller.findUnique({
-    where: { name: seller },
+async function ifSellerByNameService(seller: string, userId: number): Promise<boolean> {
+  const SellerByName = await prisma.seller.findFirst({
+    where: { name: seller, userId },
     select: { id: true, name: true, commission: true },
   })
 
@@ -30,8 +31,9 @@ async function ifSellerByNameService(seller: string): Promise<boolean> {
   return false
 }
 
-async function getAllSellerStockService(): Promise<Seller[]> {
+async function getAllSellerStockService(userId: number): Promise<Seller[]> {
   const sellerStock = await prisma.seller.findMany({
+    where: { userId },
     include: {
       stock: {
         include: {
@@ -49,9 +51,9 @@ async function getAllSellerStockService(): Promise<Seller[]> {
   return sellerStock
 }
 
-async function getAllSellerStockByIDService(id: number): Promise<Seller[]> {
+async function getAllSellerStockByIDService(id: number, userId: number): Promise<Seller[]> {
   const sellerStock = await prisma.seller.findMany({
-    where: { id },
+    where: { id, userId },
     include: {
       stock: {
         include: {
@@ -69,9 +71,9 @@ async function getAllSellerStockByIDService(id: number): Promise<Seller[]> {
   return sellerStock
 }
 
-async function deleteSellerService(id: number): Promise<Seller> {
+async function deleteSellerService(id: number, userId: number): Promise<Seller> {
   const sellerDelete = await prisma.seller.delete({
-    where: { id },
+    where: { id, userId },
   })
 
   return sellerDelete

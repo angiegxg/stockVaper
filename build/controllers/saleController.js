@@ -36,9 +36,9 @@ exports.getAllSaleController = exports.goBackSaleController = exports.createSale
 const saleService = __importStar(require("../services/saleService"));
 function createSaleController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const sale = req.body;
+        const { sale, userId } = req.body;
         try {
-            const newSale = yield saleService.createSaleService(sale);
+            const newSale = yield saleService.createSaleService(sale, +userId);
             res.json(newSale);
         }
         catch (error) {
@@ -50,9 +50,9 @@ function createSaleController(req, res) {
 exports.createSaleController = createSaleController;
 function goBackSaleController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
+        const { id, userId } = req.params;
         try {
-            const deletedSale = yield saleService.goBackSaleService(parseInt(id));
+            const deletedSale = yield saleService.goBackSaleService(+id, +userId);
             if (deletedSale) {
                 return res.json(deletedSale);
             }
@@ -67,10 +67,11 @@ function goBackSaleController(req, res) {
     });
 }
 exports.goBackSaleController = goBackSaleController;
-function getAllSaleController(_req, res) {
+function getAllSaleController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const { userId } = req.params;
         try {
-            const sales = yield saleService.getAllSaleService();
+            const sales = yield saleService.getAllSaleService(+userId);
             return res.json(sales);
         }
         catch (error) {

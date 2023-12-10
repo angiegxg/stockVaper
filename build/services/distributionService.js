@@ -36,14 +36,13 @@ exports.getDistributionByIdService = exports.getAllDistributionService = exports
 const client_1 = require("@prisma/client");
 const stockService = __importStar(require("./stockService"));
 const prisma = new client_1.PrismaClient();
-function checkStock(stock) {
+function checkStock(stock, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         let stockCheck = null;
         if (stock.productId !== undefined && stock.flavorId !== undefined && stock.sellerId !== undefined) {
             try {
-                console.log('Antes de la llamada a checkStockExistsService - productId:', stock.productId, 'flavorId:', stock.flavorId, 'sellerId:', stock.sellerId);
-                stockCheck = yield stockService.checkStockExistsService(stock.productId, stock.flavorId, stock.sellerId);
-                console.log('Después de la llamada a checkStockExistsService - stockCheck:', stockCheck);
+                console.log('estoy en la lunea 12', userId);
+                stockCheck = yield stockService.checkStockExistsService(stock.productId, stock.flavorId, stock.sellerId, userId);
             }
             catch (error) {
                 console.error('Error al verificar el stock:', error);
@@ -61,12 +60,12 @@ function calculateNewStockQuantities(fromStockQuantity, toStockQuantity, quantit
     const newToStockQuantity = toStockQuantity + quantityDistribution;
     return { newFromStockQuantity, newToStockQuantity, quantityDistribution };
 }
-function updateStockQuantities(fromStockId, toStockId, newFromStockQuantity, newToStockQuantity) {
+function updateStockQuantities(fromStockId, toStockId, userId, newFromStockQuantity, newToStockQuantity) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield Promise.all([
-                stockService.updateQuantityStockService(fromStockId, newFromStockQuantity),
-                stockService.updateQuantityStockService(toStockId, newToStockQuantity),
+                stockService.updateQuantityStockService(fromStockId, newFromStockQuantity, userId),
+                stockService.updateQuantityStockService(toStockId, newToStockQuantity, userId),
             ]);
         }
         catch (error) {
@@ -75,7 +74,7 @@ function updateStockQuantities(fromStockId, toStockId, newFromStockQuantity, new
         }
     });
 }
-function createNewDistribution(quantity, fromStockId, toStockId) {
+function createNewDistribution(quantity, fromStockId, toStockId, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (quantity === 0) {
@@ -84,6 +83,7 @@ function createNewDistribution(quantity, fromStockId, toStockId) {
             }
             return yield prisma.distribution.create({
                 data: {
+                    userId,
                     quantity,
                     fromStockId,
                     toStockId,
@@ -95,52 +95,56 @@ function createNewDistribution(quantity, fromStockId, toStockId) {
         }
     });
 }
-function transferStockAndCreateDistribution(fromStock, toStock, quantity, fromStockId, toStockId) {
+function transferStockAndCreateDistribution(fromStock, toStock, quantity, fromStockId, toStockId, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { newFromStockQuantity, newToStockQuantity, quantityDistribution } = calculateNewStockQuantities(fromStock.quantity, toStock.quantity, quantity);
-        yield updateStockQuantities(fromStockId, toStockId, newFromStockQuantity, newToStockQuantity);
-        return createNewDistribution(quantityDistribution, fromStockId, toStockId);
+        yield updateStockQuantities(fromStockId, toStockId, newFromStockQuantity, newToStockQuantity, userId);
+        return createNewDistribution(quantityDistribution, fromStockId, toStockId, userId);
     });
 }
-function getAllDistributionService() {
+function getAllDistributionService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const distribution = yield prisma.distribution.findMany({});
+        const distribution = yield prisma.distribution.findMany({
+            where: { userId },
+        });
         return distribution;
     });
 }
 exports.getAllDistributionService = getAllDistributionService;
-function getDistributionByIdService(id) {
+function getDistributionByIdService(id, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const DistributionById = yield prisma.distribution.findUnique({
-            where: { id },
+            where: { id, userId },
             include: { sentFromStock: true, receivedAtStock: true },
         });
         return DistributionById || null;
     });
 }
 exports.getDistributionByIdService = getDistributionByIdService;
-function transferStocksService(distributions) {
+function transferStocksService(distributions, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const results = [];
         for (const distribution of distributions) {
+            console.log('estoy dentro del for');
             const { quantity, sentFromStock, receivedAtStock } = distribution;
-            const fromStocknew = yield checkStock(sentFromStock);
+            const fromStocknew = yield checkStock(sentFromStock, userId);
             if (!fromStocknew) {
                 throw new Error(`El stock desde donde se quiere hacer la distribucion no existe`);
             }
-            let toStocknew = yield checkStock(receivedAtStock);
+            let toStocknew = yield checkStock(receivedAtStock, userId);
             if (!toStocknew) {
                 const newtoStock = {
+                    userId,
                     productId: receivedAtStock.productId,
                     flavorId: receivedAtStock.flavorId,
                     quantity: 0,
                     sellerId: receivedAtStock.sellerId,
                 };
-                toStocknew = yield stockService.createstockNewService(newtoStock);
+                toStocknew = yield stockService.createstockNewService(newtoStock, userId);
             }
             if (fromStocknew && toStocknew && fromStocknew.productId === toStocknew.flavorId) {
                 try {
-                    const result = yield transferStockAndCreateDistribution(fromStocknew, toStocknew, quantity, fromStocknew.id, toStocknew.id);
+                    const result = yield transferStockAndCreateDistribution(fromStocknew, toStocknew, quantity, fromStocknew.id, toStocknew.id, userId);
                     results.push(result);
                 }
                 catch (error) {

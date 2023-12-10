@@ -4,5 +4,5 @@ import * as productController from '../controllers/productController'
 const productRoutes = express.Router()
 
 productRoutes.post('/', productController.createProductController)
-productRoutes.get('/', productController.getAllProductsController)
+productRoutes.get('/:userId', productController.getAllProductsController)
 export default productRoutes

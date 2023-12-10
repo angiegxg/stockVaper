@@ -114,6 +114,7 @@ export interface Stock {
   sellerId: number
   product?: ProductByFlavor
   seller?: { name: string }
+  userId: number
 }
 
 // model Stock {

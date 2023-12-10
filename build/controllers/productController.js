@@ -37,8 +37,9 @@ const productService = __importStar(require("../services/productService"));
 const createProductController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const product = req.body.product;
     const flavor = req.body.flavorIds;
+    const userId = req.body.userId;
     try {
-        const createProduct = yield productService.createProductService(product, flavor);
+        const createProduct = yield productService.createProductService(product, flavor, userId);
         res.json(createProduct);
     }
     catch (error) {
@@ -46,9 +47,10 @@ const createProductController = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.createProductController = createProductController;
-const getAllProductsController = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllProductsController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.userId;
     try {
-        const allProducts = yield productService.getAllProductService();
+        const allProducts = yield productService.getAllProductService(+userId);
         res.json(allProducts);
     }
     catch (error) {

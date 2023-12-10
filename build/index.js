@@ -11,10 +11,11 @@ const sellerRoute_1 = __importDefault(require("./routes/sellerRoute"));
 const stockRoute_1 = __importDefault(require("./routes/stockRoute"));
 const saleRoute_1 = __importDefault(require("./routes/saleRoute"));
 const distributionRoute_1 = __importDefault(require("./routes/distributionRoute"));
+const userRoute_1 = __importDefault(require("./routes/userRoute"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -28,6 +29,7 @@ app.use('/seller', sellerRoute_1.default);
 app.use('/stock', stockRoute_1.default);
 app.use('/sale', saleRoute_1.default);
 app.use('/distribution', distributionRoute_1.default);
+app.use('/user', userRoute_1.default);
 app.listen(PORT, () => {
     console.log(`server listening on ${PORT}`);
 });

@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllProductService = exports.createProductService = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
-function createProductService(product, flavorIds) {
+function createProductService(product, flavorIds, userId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { name, description, img, cost } = product;
         const createProduct = yield prisma.product.create({
@@ -21,6 +21,7 @@ function createProductService(product, flavorIds) {
                 description,
                 img,
                 cost,
+                userId,
                 flavors: {
                     create: flavorIds.map((flavorId) => ({
                         flavor: {
@@ -35,9 +36,11 @@ function createProductService(product, flavorIds) {
     });
 }
 exports.createProductService = createProductService;
-function getAllProductService() {
+function getAllProductService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const allproduct = yield prisma.product.findMany({});
+        const allproduct = yield prisma.product.findMany({
+            where: { userId },
+        });
         return allproduct;
     });
 }

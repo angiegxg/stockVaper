@@ -47,10 +47,11 @@ function createSellerController(req, res) {
     });
 }
 exports.createSellerController = createSellerController;
-function getSellerStockController(_req, res) {
+function getSellerStockController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userId = req.params.userId;
         try {
-            const createSeller = yield sellerService.getAllSellerStockService();
+            const createSeller = yield sellerService.getAllSellerStockService(+userId);
             res.json(createSeller);
         }
         catch (errors) {
@@ -61,9 +62,9 @@ function getSellerStockController(_req, res) {
 exports.getSellerStockController = getSellerStockController;
 function getSellerStockByIdController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
+        const { id, userId } = req.params;
         try {
-            const sellerById = yield sellerService.getAllSellerStockByIDService(+id);
+            const sellerById = yield sellerService.getAllSellerStockByIDService(+id, +userId);
             res.json(sellerById);
         }
         catch (errors) {
@@ -74,9 +75,9 @@ function getSellerStockByIdController(req, res) {
 exports.getSellerStockByIdController = getSellerStockByIdController;
 function deleteSellerController(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { id } = req.params;
+        const { id, userId } = req.params;
         try {
-            const deletedSeller = yield sellerService.deleteSellerService(parseInt(id));
+            const deletedSeller = yield sellerService.deleteSellerService(+id, +userId);
             if (deletedSeller) {
                 return res.json(deletedSeller);
             }

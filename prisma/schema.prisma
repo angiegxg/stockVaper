@@ -10,6 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User{
+  id          Int               @id @default(autoincrement())
+  email String 
+  password String
+  flavors Flavor []
+  products Product[]
+  sellers Seller[]
+  stocks Stock[]
+  distributions Distribution[]
+  sales Sale[]
+
+}
+
 model Product {
   id          Int               @id @default(autoincrement())
   name        String
@@ -17,12 +30,16 @@ model Product {
   img         String
   cost        Float
   flavors     ProductByFlavor[]
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model Flavor {
   id      Int              @id @default(autoincrement())
   flavor  String
   product ProductByFlavor[]
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model ProductByFlavor {
@@ -42,6 +59,8 @@ model Seller {
   commission  Float
   sales       Sale[]
   stock       Stock[]
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model Sale {
@@ -51,6 +70,8 @@ model Sale {
   sellerId      Int
   productsSold  ProductDetail[]
   total Float
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model ProductDetail {
@@ -77,6 +98,8 @@ model Stock {
   sentDistributions   Distribution[]       @relation("SentDistributions")
   receivedDistributions Distribution[]       @relation("ReceivedDistributions")
   stockDistribution    StockDistribution[]
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model Distribution {
@@ -88,6 +111,8 @@ model Distribution {
   receivedAtStock    Stock               @relation("ReceivedDistributions", fields: [toStockId], references: [id])
   toStockId          Int
   stockDistributions StockDistribution[]
+  userId    Int
+  user      User @relation(fields: [userId], references: [id])
 }
 
 model StockDistribution {

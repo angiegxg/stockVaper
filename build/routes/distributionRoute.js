@@ -30,7 +30,7 @@ const express_1 = __importDefault(require("express"));
 const distributionController = __importStar(require("../controllers/distributionController"));
 const distributionRoutes = express_1.default.Router();
 distributionRoutes.post('/', distributionController.createNewDistributionsController);
-distributionRoutes.get('/', distributionController.getDistributionController);
-distributionRoutes.get('/:id', distributionController.getDistributionByIdController);
+distributionRoutes.get('/:userId', distributionController.getDistributionController);
+distributionRoutes.get('/:id/:userId', distributionController.getDistributionByIdController);
 exports.default = distributionRoutes;
 //# sourceMappingURL=distributionRoute.js.map
